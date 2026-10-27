@@ -1,49 +1,42 @@
-# Evaluación Parcial N°2 - Ingeniería DevOps (DOY0101)
+#  Microservicio DevOps - Evaluación Parcial N°2
 
-## Integrantes del Equipo
-* **Nombre:** Edwars Alexis Andree Fuentes Mella
-* **Asignatura:** Ingeniería DevOps (DOY0101)
-* **Institución:** Duoc UC
+Repositorio oficial para la automatización del ciclo de vida del software mediante un pipeline de CI/CD implementado en **GitHub Actions**, cumpliendo con los estándares de contenedorización, pruebas automatizadas, análisis de seguridad, orquestación y trazabilidad.
 
 ---
 
-## 1. Descripción del Proyecto
-Este proyecto consiste en un microservicio desarrollado en Java con Spring Boot, automatizado completamente a través de un pipeline de CI/CD configurado en GitHub Actions. El ciclo de vida abarca desde la compilación y ejecución de pruebas unitarias hasta el escaneo de seguridad, la generación de imágenes en Docker y la orquestación con Docker Compose.
+##  1. Arquitectura y Contenerización (IE1)
+El microservicio está desarrollado en **Spring Boot** (Java 17) y empaquetado mediante un contenedor optimizado utilizando un **`Dockerfile`** multi-etapa que garantiza imágenes ligeras y seguras para entornos cloud.
+
+* **Estrategia de contenedores:** Se aislaron las dependencias del runtime utilizando una imagen base de Eclipse Temurin (OpenJDK), optimizando el rendimiento y reduciendo la superficie de vulnerabilidades.
 
 ---
 
-## 2. Arquitectura del Pipeline CI/CD
-
-El pipeline de GitHub Actions (`.github/workflows/ci-cd.yml`) se activa de forma automática en cada `push` o `pull_request` a las ramas principales (`main`/`master`) y se divide en 3 etapas principales:
-
-1. **Pruebas Unitarias (`unit-tests`):**
-   * Configura JDK 17 y utiliza Apache Maven para ejecutar el conjunto de pruebas unitarias (`mvn test`) implementadas con JUnit.
-2. **Análisis de Seguridad y Dependencias (`security-analysis`):**
-   * Incorpora herramientas de análisis estático y escaneo de vulnerabilidades (Trivy / Snyk).
-   * **Bloqueo de seguridad:** Configurado para interrumpir la ejecución del pipeline con código de salida `1` en caso de detectar vulnerabilidades de severidad `CRITICAL` o `HIGH`.
-3. **Construcción y Despliegue de Imagen (`build-docker`):**
-   * Genera la imagen optimizada de Docker utilizando construcciones multi-etapa (*multi-stage build*) para garantizar un entorno liviano y seguro en producción.
+##  2. Integración Continua y Pruebas Automatizadas (IE2)
+El pipeline en GitHub Actions ejecuta de manera automatizada las pruebas unitarias e integración de código en cada `push` o `pull_request` hacia la rama principal:
+* **Framework:** JUnit / Maven Test.
+* **Política de calidad:** El flujo se detiene inmediatamente si las pruebas unitarias fallan, asegurando la estabilidad antes de avanzar a las etapas de seguridad y despliegue.
 
 ---
 
-## 3. Trazabilidad y Calidad de Software
-
-Para garantizar la trazabilidad y calidad en cada despliegue:
-* **Trazabilidad:** Cada paso ejecutado en GitHub Actions queda registrado con el commit hash correspondiente, permitiendo asociar de forma transparente el código fuente con la versión de la imagen del contenedor generada.
-* **Calidad y Políticas:** No se permite la generación o despliegue de imágenes de Docker si el código no aprueba el 100% de las pruebas unitarias o si existen fallos críticos de seguridad en las dependencias.
+##  3. Seguridad y Análisis de Dependencias (IE3)
+Para cumplir con la gobernanza y los estándares de seguridad, el pipeline integra:
+* **Escaneo de Vulnerabilidades (Trivy / Snyk):** Analiza el sistema de archivos del proyecto en busca de vulnerabilidades críticas y altas.
+* **Bloqueo Automático:** Configurado con `exit-code: '1'`, el pipeline bloquea y rechaza cualquier integración si se detectan fallas graves de seguridad, garantizando que código vulnerable no llegue a producción.
 
 ---
 
-## 4. Guía de Ejecución Local con Orquestación
+##  4. Trazabilidad y Despliegue Automatizado (IE4)
+El pipeline asegura la **trazabilidad completa** desde el desarrollo local hasta el entorno cloud simulado:
+1. **Desarrollo y Control de Versiones:** Registro de commits y trazabilidad en GitHub (`main`).
+2. **Validación Automática:** Ejecución secuencial de jobs (`unit-tests` ➔ `security-analysis` ➔ `build-docker`).
+3. **Construcción de Imagen:** Generación automática de la imagen Docker etiquetada como `microservicio-devops:latest`.
 
-Para ejecutar y orquestar el microservicio de forma local usando Docker Compose:
+---
 
-```bash
-# 1. Construir y levantar los contenedores
-docker-compose up --build -d
+##  5. Orquestación de Contenedores (IE5)
+Para gestionar soluciones escalables de mediana y gran envergadura, el proyecto incluye un archivo **`docker-compose.yml`** que permite levantar y orquestar el microservicio de manera local o en servidores cloud simulados garantizando su correcta conectividad y persistencia.
 
-# 2. Verificar el estado del contenedor
-docker-compose ps
+---
 
-# 3. Detener la orquestación
-docker-compose down
+## Declaración de Uso de Inteligencia Artificial (IA)
+De acuerdo con las normativas éticas del curso, se declara que se utilizó asistencia de Inteligencia Artificial como herramienta de apoyo técnico para la depuración de errores de compilación de Maven, la estructuración de la sintaxis del archivo YAML del pipeline en GitHub Actions y la redacción de este informe. El análisis técnico, la validación de los resultados y la implementación final fueron rigurosamente revisados y validados por el equipo de desarrollo.
