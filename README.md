@@ -1,42 +1,33 @@
-#  Microservicio DevOps - Evaluación Parcial N°2
+# Microservicio DevOps - Evaluación Parcial N°3 (`DOY0101`)
 
-Repositorio oficial para la automatización del ciclo de vida del software mediante un pipeline de CI/CD implementado en **GitHub Actions**, cumpliendo con los estándares de contenedorización, pruebas automatizadas, análisis de seguridad, orquestación y trazabilidad.
+Repositorio del microservicio `evaluacion-devops-service` (Spring Boot / Java 17) y su automatización de ciclo de vida, observabilidad, manifiestos de orquestación y control de calidad/seguridad mediante GitHub Actions y Docker.
 
----
+## 1. Monitoreo, Logs y Observabilidad (IE1)
+- **Spring Boot Actuator y métricas:** Expone los endpoints `health`, `info` y `prometheus` (con `show-details: always` en salud y etiqueta `application: evaluacion-devops-service`).
+- **Stack de observabilidad:** Integración mediante `docker-compose.yml` con Prometheus (`prometheus.yml`), Loki, Promtail (`promtail-config.yml`) y Grafana para supervisar disponibilidad, métricas del servicio/JVM y registros de contenedores.
 
-##  1. Arquitectura y Contenerización (IE1)
-El microservicio está desarrollado en **Spring Boot** (Java 17) y empaquetado mediante un contenedor optimizado utilizando un **`Dockerfile`** multi-etapa que garantiza imágenes ligeras y seguras para entornos cloud.
+## 2. Manifiestos de Orquestación (IE2)
+- **Definición declarativa en repositorio (`K8s/`):** Manifiestos base de Kubernetes (`namespace.yaml`, `deployment.yaml` y `service.yaml`) preparados en el repositorio con configuración de entorno (`SPRING_PROFILES_ACTIVE=prod`), probes de salud y anotaciones de scraping para Prometheus, sin requerir un clúster cloud activo en el entorno local.
 
-* **Estrategia de contenedores:** Se aislaron las dependencias del runtime utilizando una imagen base de Eclipse Temurin (OpenJDK), optimizando el rendimiento y reduciendo la superficie de vulnerabilidades.
+## 3. Dashboards y Métricas Integradas al CI/CD (IE3)
+- **Visualización en Grafana:** Paneles de observabilidad conectados a Prometheus y Loki para revisar uso de memoria JVM, CPU del proceso, errores HTTP (como `500` en `/error-test`) y trazabilidad vinculada al flujo de CI/CD (duración/tiempo de despliegue y cobertura de pruebas).
 
----
+## 4. Decisiones Técnicas y Mejora Continua (IE4)
+- **Decisiones técnicas:**
+  - Mantener la stack local de monitoreo y logs en Docker Compose para validar observabilidad de forma reproducible sin costos de infraestructura en la nube.
+  - Documentar manifiestos declarativos en `K8s/` como base de orquestación manteniendo el flujo de trabajo ágil y directo.
+  - Estandarizar métricas y etiquetas desde `application.yaml` para mantener coherencia entre el microservicio, Prometheus y Grafana.
+- **Mejora continua:**
+  - Refinar paneles y consultas en Grafana a partir de pruebas reales de carga y errores.
+  - Ampliar la automatización de reportes de cobertura y métricas del pipeline hacia la visualización en dashboards.
+  - Evaluar despliegues en entornos orquestados adicionales si el proyecto escala a etapas posteriores.
 
-##  2. Integración Continua y Pruebas Automatizadas (IE2)
-El pipeline en GitHub Actions ejecuta de manera automatizada las pruebas unitarias e integración de código en cada `push` o `pull_request` hacia la rama principal:
-* **Framework:** JUnit / Maven Test.
-* **Política de calidad:** El flujo se detiene inmediatamente si las pruebas unitarias fallan, asegurando la estabilidad antes de avanzar a las etapas de seguridad y despliegue.
-
----
-
-##  3. Seguridad y Análisis de Dependencias (IE3)
-Para cumplir con la gobernanza y los estándares de seguridad, el pipeline integra:
-* **Escaneo de Vulnerabilidades (Trivy / Snyk):** Analiza el sistema de archivos del proyecto en busca de vulnerabilidades críticas y altas.
-* **Bloqueo Automático:** Configurado con `exit-code: '1'`, el pipeline bloquea y rechaza cualquier integración si se detectan fallas graves de seguridad, garantizando que código vulnerable no llegue a producción.
-
----
-
-##  4. Trazabilidad y Despliegue Automatizado (IE4)
-El pipeline asegura la **trazabilidad completa** desde el desarrollo local hasta el entorno cloud simulado:
-1. **Desarrollo y Control de Versiones:** Registro de commits y trazabilidad en GitHub (`main`).
-2. **Validación Automática:** Ejecución secuencial de jobs (`unit-tests` ➔ `security-analysis` ➔ `build-docker`).
-3. **Construcción de Imagen:** Generación automática de la imagen Docker etiquetada como `microservicio-devops:latest`.
-
----
-
-##  5. Orquestación de Contenedores (IE5)
-Para gestionar soluciones escalables de mediana y gran envergadura, el proyecto incluye un archivo **`docker-compose.yml`** que permite levantar y orquestar el microservicio de manera local o en servidores cloud simulados garantizando su correcta conectividad y persistencia.
-
----
+## 5. Políticas de Cumplimiento y Corte de Pipeline (IE5 y IE6)
+- **Políticas y controles en CI/CD:** Validación automatizada con Maven (`unit-tests`), análisis de seguridad con escaneo de vulnerabilidades configurado con corte ante hallazgos críticos/altos (`exit-code: '1'`) y construcción de imagen Docker (`microservicio-devops:latest`).
+- **Corte controlado ante fallas:** Verificación del bloqueo automático del pipeline en Pull Request cuando falla una validación, evitando integrar cambios rotos en `main`.
 
 ## Declaración de Uso de Inteligencia Artificial (IA)
-De acuerdo con las normativas éticas del curso, se declara que se utilizó asistencia de Inteligencia Artificial como herramienta de apoyo técnico para la depuración de errores de compilación de Maven, la estructuración de la sintaxis del archivo YAML del pipeline en GitHub Actions y la redacción de este informe. El análisis técnico, la validación de los resultados y la implementación final fueron rigurosamente revisados y validados por el equipo de desarrollo.
+De acuerdo con las normativas éticas del curso, se declara que se utilizó asistencia de Inteligencia Artificial como apoyo técnico para la revisión y estructuración de configuraciones (YAML/Docker/observabilidad/manifiestos), diagnóstico de problemas y redacción de apoyo de este documento. El análisis técnico, las pruebas, la validación de resultados y las decisiones finales fueron revisados por mí como autor del proyecto.
+
+## Reflexión Individual
+Por mi parte, lo que más me costó fue la configuración de Prometheus y Grafana, ya que al principio no tenía claro cómo usar cada cosa, pero con el tiempo me fui acostumbrando a cada parte. Lo que aprendí fue utilizar con más facilidad Grafana y organizar nuevas carpetas como `K8s`. Lo que añadiría sería sumar funciones para Docker Desktop, a lo que me refiero es que se pueda crear algo directamente desde Docker Desktop.
